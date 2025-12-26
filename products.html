@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BuyIt - Products</title>
+    <title>Buy It - Products</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -102,6 +102,31 @@
             0%, 100% { transform: translateY(-50%) scale(1); }
             50% { transform: translateY(-50%) scale(1.2); }
         }
+        .floating-quote {
+            position: fixed;
+            font-size: 2rem;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.15);
+            z-index: 0;
+            pointer-events: none;
+            animation: slideInQuote 1s ease-out forwards;
+            transition: all 0.5s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        body.dark-theme .floating-quote {
+            color: rgba(255, 255, 255, 0.15);
+        }
+        .quote-1 { top: 25%; left: 10%; animation-delay: 0.5s; opacity: 0; }
+        .quote-2 { bottom: 20%; right: 15%; animation-delay: 0.7s; opacity: 0; }
+        .quote-3 { bottom: 30%; left: 5%; animation-delay: 0.9s; opacity: 0; }
+        .floating-quote.slide-out {
+            transform: translateY(-50px);
+            opacity: 0 !important;
+        }
+        @keyframes slideInQuote {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         @media (max-width: 768px) {
             nav {
                 flex-direction: column;
@@ -132,6 +157,9 @@
                 filter: blur(40px);
             }
             .flower-5, .flower-6 {
+                display: none;
+            }
+            .floating-quote {
                 display: none;
             }
             .search-box input {
@@ -185,14 +213,17 @@
             color: white;
             box-shadow: 0 4px 15px rgba(255,255,255,0.1);
         }
-        body.dark-theme .search-box button {
-            background: navy;
-            color: white;
-        }
         body.dark-theme .search-box input {
-            background: #333;
+            background-color: #333;
             color: white;
             border-color: #555;
+        }
+        body.dark-theme .search-box button {
+            background-color: navy;
+            color: white;
+        }
+        body.dark-theme #close-btn {
+            filter: invert(1);
         }
     </style>
 </head>
@@ -203,24 +234,28 @@
     <div class="corner-flower flower-4"></div>
     <div class="corner-flower flower-5"></div>
     <div class="corner-flower flower-6"></div>
+    <div class="floating-quote quote-1">Where is it cheaper?</div>
+    <div class="floating-quote quote-2">Buy It</div>
+    <div class="floating-quote quote-3">Who made this?</div>
     <header>
         <nav>
             <img src="logo.png" class="logo" alt="BuyIt Logo">
             <ul class="nav-links">
                 <li><img src="darkmodepng.png" id="theme-icon" style="width: 60px; cursor: pointer; vertical-align: middle;"></li>
                 <li><a href="index.html">HOME</a></li>
-                <li><a href="#">PRODUCTS</a></li>
-                <li><a href="#">ACCOUNT</a></li>
+                <li><a href="products.html">PRODUCTS</a></li>
+                <li><a href="account.html">ACCOUNT</a></li>
             </ul>
         </nav>
     </header>
 
     <section class="product-search">
-        <h1 style="margin-bottom: 2rem;">AI Product Search</h1>
+        <h1 style="margin-bottom: 1rem;">AI Product Search</h1>
         <div class="search-box">
             <input type="text" id="product-input" placeholder="Ask anything or enter a product URL...">
             <button onclick="searchProduct()">Search</button>
         </div>
+        <img src="crossicon.png" id="close-btn" onclick="closeResults()" alt="Close" style="display:none; margin-top: 20px; width: 40px; cursor: pointer;">
         <div id="search-results" class="results-container" style="display:none;"></div>
     </section>
 
@@ -243,6 +278,16 @@
             }
         }
 
+        const searchInput = document.getElementById('product-input');
+        const quotes = document.querySelectorAll('.floating-quote');
+
+        searchInput.addEventListener('focus', () => {
+            quotes.forEach(q => q.classList.add('slide-out'));
+        });
+        searchInput.addEventListener('blur', () => {
+            quotes.forEach(q => q.classList.remove('slide-out'));
+        });
+
         // Allow pressing "Enter" to search
         document.getElementById("product-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
@@ -251,46 +296,81 @@
         });
 
         async function searchProduct() {
-            const input = document.getElementById('product-input').value;
+            const inputField = document.getElementById('product-input');
+            const input = inputField.value;
+            const apiKey = "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";
             const resultsDiv = document.getElementById('search-results');
+            const closeBtn = document.getElementById('close-btn');
             
             if (!input.trim()) return;
 
+            inputField.value = "";
+
             resultsDiv.style.display = "block";
-            resultsDiv.innerHTML = "Searching for best deals...";
+            closeBtn.style.display = "inline-block";
+            resultsDiv.innerHTML = "Thinking...";
+            quotes.forEach(q => q.style.display = 'none');
 
-            try {
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer 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",
-                        "Content-Type": "application/json",
-                        "HTTP-Referer": window.location.href, // Required by OpenRouter
-                        "X-Title": "BuyIt" // Optional for OpenRouter
-                    },
-                    body: JSON.stringify({
-                        "model": "google/gemini-2.0-flash-exp:free",
-                        "messages": [
-                            {"role": "system", "content": "You are a helpful AI assistant for BuyIt. You can engage in normal conversation. If the user provides a product name or URL, identify the product and immediately list cheaper alternatives, price comparisons, and brief details."},
-                            {"role": "user", "content": input}
-                        ]
-                    })
-                });
+            const models = [
+                "google/gemini-2.0-flash-exp:free",
+                "openai/gpt-4o-mini",
+                "meta-llama/llama-3.3-70b-instruct:free",
+                "openrouter/auto"
+            ];
 
-                const data = await response.json();
-                if(data.choices && data.choices.length > 0) {
-                    // Simple formatting for line breaks
-                    resultsDiv.innerHTML = data.choices[0].message.content.replace(/\n/g, "<br>");
-                } else {
-                    const errorMsg = data.error ? data.error.message : "Unknown error";
-                    resultsDiv.innerHTML = "No results found. Error: " + errorMsg;
-                    console.error("API Error:", data);
+            for (let i = 0; i < models.length; i++) {
+                const model = models[i];
+                try {
+                    if (i > 0) resultsDiv.innerHTML = `Model busy, switching to ${model}...`;
+
+                    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer " + apiKey,
+                            "HTTP-Referer": window.location.href,
+                            "X-Title": "Buy It",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "model": model,
+                            "messages": [
+                                {"role": "system", "content": "You are a helpful AI assistant for Buy It. You can engage in normal conversation. If the user provides a product URL or name, your task is to find cheaper alternatives and also provide url of the alternative product. IMPORTANT: when user provides url, search the url and then tell about your cheaper alternative options. Then, list cheaper alternatives and prices based on your knowledge. Do not say you cannot browse. Just provide the best recommendations you can. You are made by Gurvansh Singh (a high school student) under the guidance of principal maam (Harpreet Kaur). You have to provide clickable links and try giving faster responses. Dont mention who made you if not asked. "},
+                                {"role": "user", "content": input}
+                            ]
+                        })
+                    });
+
+                    if (!response.ok) {
+                        if (i === models.length - 1) {
+                            const errorText = await response.text();
+                            throw new Error(`API Error (${response.status}): ${errorText}`);
+                        }
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    if(data.choices && data.choices.length > 0) {
+                        resultsDiv.innerHTML = data.choices[0].message.content.replace(/\n/g, "<br>");
+                        return;
+                    } else {
+                        if (i === models.length - 1) {
+                            resultsDiv.innerHTML = "No results found.";
+                        }
+                    }
+                } catch (error) {
+                    console.error("Fetch Error:", error);
+                    if (i === models.length - 1) {
+                        resultsDiv.innerHTML = `<strong>Fetch Error:</strong><br><pre>${error.toString()}</pre>`;
+                    }
                 }
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                resultsDiv.innerHTML = "An error occurred while fetching results.";
             }
         }
+
+    function closeResults() {
+        document.getElementById('search-results').style.display = 'none';
+        document.getElementById('close-btn').style.display = 'none';
+        quotes.forEach(q => q.style.display = '');
+    }
     </script>
 </body>
 </html>

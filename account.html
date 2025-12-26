@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        header {
+            background: cyan;
+            color: black;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            margin: auto;
+        }
+        .logo {
+            height: 80px;
+            width: auto;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links li {
+            margin-left: 15px;
+        }
+        .nav-links a {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .nav-links a:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px black;
+        }
+        body.dark-theme {
+            background-color: black;
+            color: white;
+        }
+        body.dark-theme header {
+            background-color: navy;
+        }
+        body.dark-theme .nav-links a {
+            color: white;
+            background-color: black;
+        }
+        body.dark-theme .nav-links a:hover {
+            box-shadow: 0 0 20px white;
+        }
+        .corner-flower {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url('darkthemeflower.png');
+            filter: blur(75px);
+            animation: pulse 5s infinite ease-in-out;
+        }
+        .flower-1 { top: 80px; left: 20px; }
+        .flower-2 { top: 80px; right: 20px; }
+        .flower-3 { bottom: 2px; left: 20px; }
+        .flower-4 { bottom: 2px; right: 20px; }
+        .flower-5 { top: 55%; left: 300px; transform: translateY(-50%); animation-name: pulse-centered; }
+        .flower-6 { top: 55%; right: 300px; transform: translateY(-50%); animation-name: pulse-centered; }
+        body.dark-theme .corner-flower {
+            background-image: url('lightthemeflower.png');
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        @keyframes pulse-centered {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.2); }
+        }
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+            }
+            .logo {
+                margin-bottom: 0.5rem;
+                height: 50px;
+            }
+            .nav-links {
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: nowrap;
+                width: 100%;
+            }
+            .nav-links li {
+                margin: 0 2px;
+            }
+            .nav-links a {
+                font-size: 0.8rem;
+                padding: 6px 8px;
+            }
+            #theme-icon {
+                width: 30px !important;
+            }
+            .corner-flower {
+                width: 150px;
+                height: 150px;
+                filter: blur(40px);
+            }
+            .flower-5, .flower-6 {
+                display: none;
+            }
+        }
+        .account-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+        }
+        .form-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .form-box h2 { margin-bottom: 1.5rem; }
+        .input-group { margin-bottom: 15px; }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; flex: 1;
+        }
+        .btn-primary { background: cyan; color: black; }
+        .btn-secondary { background: #ccc; color: black; }
+        .btn-outline { background: transparent; border: 2px solid cyan; color: black; width: 100%; margin-top: 10px; }
+        
+        body.dark-theme .form-box { background: rgba(30, 30, 30, 0.9); color: white; }
+        body.dark-theme .input-group input { background: #444; border-color: #555; color: white; }
+        body.dark-theme .btn-primary { background: navy; color: white; }
+        body.dark-theme .btn-secondary { background: #555; color: white; }
+        body.dark-theme .btn-outline { border-color: navy; color: white; }
+    </style>
+</head>
+<body>
+    <div class="corner-flower flower-1"></div>
+    <div class="corner-flower flower-2"></div>
+    <div class="corner-flower flower-3"></div>
+    <div class="corner-flower flower-4"></div>
+    <div class="corner-flower flower-5"></div>
+    <div class="corner-flower flower-6"></div>
+    <header>
+        <nav>
+            <img src="logo.png" class="logo" alt="BuyIt Logo">
+            <ul class="nav-links">
+                <li><img src="darkmodepng.png" id="theme-icon" style="width: 60px; cursor: pointer; vertical-align: middle;"></li>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="products.html">PRODUCTS</a></li>
+                <li><a href="account.html">ACCOUNT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="account-container">
+        <!-- Sign Up Form -->
+        <div class="form-box" id="signup-box">
+            <h2>Sign Up</h2>
+            <div class="input-group"><input type="text" id="fname" placeholder="First Name *"></div>
+            <div class="input-group"><input type="text" id="lname" placeholder="Last Name *"></div>
+            <div class="input-group"><input type="tel" id="phone" placeholder="Phone No."></div>
+            <div class="input-group"><input type="email" id="email" placeholder="Email"></div>
+            <div class="input-group"><input type="password" id="password" placeholder="Password *"></div>
+            <p style="font-size: 0.8rem; color: gray; margin-bottom: 15px;">* First Name, Last Name, Password and (Phone or Email) are mandatory</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="handleSignUp()">Sign Up</button>
+                <button class="btn btn-secondary" onclick="clearForm()">Cancel</button>
+            </div>
+            <button class="btn btn-outline" onclick="showLogin()">Login</button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="form-box" id="login-box" style="display: none;">
+            <h2>Login</h2>
+            <div class="input-group"><input type="text" id="login-identifier" placeholder="Full Name or Email *"></div>
+            <div class="input-group"><input type="password" id="login-password" placeholder="Password *"></div>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+                <button class="btn btn-secondary" onclick="showSignUp()">Cancel</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        var icon = document.getElementById("theme-icon");
+
+        if(localStorage.getItem("theme") == "dark"){
+            document.body.classList.add("dark-theme");
+            icon.src = "lightmodepng.png";
+        }
+
+        icon.onclick = function(){
+            document.body.classList.toggle("dark-theme");
+            if(document.body.classList.contains("dark-theme")){
+                icon.src = "lightmodepng.png";
+                localStorage.setItem("theme", "dark");
+            }else{
+                icon.src = "darkmodepng.png";
+                localStorage.setItem("theme", "light");
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('signup-box').style.display = 'none';
+            document.getElementById('login-box').style.display = 'block';
+        }
+
+        function showSignUp() {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('signup-box').style.display = 'block';
+        }
+
+        function clearForm() {
+            document.getElementById('fname').value = '';
+            document.getElementById('lname').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function handleSignUp() {
+            const fname = document.getElementById('fname').value.trim();
+            const lname = document.getElementById('lname').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!fname || !lname || !password) {
+                alert("First Name, Last Name, and Password are mandatory.");
+                return;
+            }
+            if (!phone && !email) {
+                alert("Please provide either a Phone Number or an Email.");
+                return;
+            }
+
+            const user = { fname, lname, fullname: fname + " " + lname, phone, email, password };
+            let users = JSON.parse(localStorage.getItem('buyit_users')) || [];
+            users.push(user);
+            localStorage.setItem('buyit_users', JSON.stringify(users));
+            alert("Sign Up Successful! Data saved.");
+            clearForm();
+        }
+
+        function handleLogin() {
+            const identifier = document.getElementById('login-identifier').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!identifier || !password) { alert("Both fields are mandatory."); return; }
+
+            let users = JSON.parse(localStorage.getItem('buyit_users')) || [];
+            const user = users.find(u => (u.email === identifier || u.fullname === identifier) && u.password === password);
+            
+            if (user) alert("Login Successful! Welcome " + user.fname);
+            else alert("Invalid credentials or user not found.");
+        }
+    </script>
+</body>
+</html>
