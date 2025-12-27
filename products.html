@@ -128,21 +128,25 @@
             to { opacity: 1; transform: translateY(0); }
         }
         @media (max-width: 768px) {
+            header {
+                padding-top: 10px;
+            }
             nav {
-                flex-direction: column;
+                flex-direction: row;
             }
             .logo {
-                margin-bottom: 0.5rem;
-                height: 50px;
+                margin-bottom: 0;
+                height: 40px;
+                margin-top: 0;
             }
             .nav-links {
                 flex-direction: row;
-                justify-content: center;
+                justify-content: flex-end;
                 flex-wrap: nowrap;
-                width: 100%;
+                width: auto;
             }
             .nav-links li {
-                margin: 0 2px;
+                margin-left: 5px;
             }
             .nav-links a {
                 font-size: 0.8rem;
@@ -692,7 +696,7 @@
         async function searchProduct() {
             const inputField = document.getElementById('product-input');
             const input = inputField.value;
-            const apiKey = "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";
+            const apiKey = "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";
             const resultsDiv = document.getElementById('search-results');
             const searchBtn = document.getElementById('search-btn');
 
@@ -753,8 +757,8 @@ Additional rules:
 - Keep responses concise, practical, and focused on helping users save money
 
 Background information (mention ONLY if relevant or asked):
-- Gurjot Singh is the brother of Gurvansh Singh and owns a Toy Centre
-- Jagmeet Singh is the brother of Gurvansh Singh, owns a PlayStation 4, and is intelligent
+- Gurjot Singh is the brother of Gurvansh Singh and owns a Toy Centre and also have a personal smartphone.
+- Jagmeet Singh is the brother of Gurvansh Singh, owns a PlayStation 4, and is intelligent.
 `
                 });
                 
@@ -788,42 +792,40 @@ Background information (mention ONLY if relevant or asked):
 
             const models = [
                 "google/gemini-2.0-flash-exp:free",
-"google/gemini-1.5-flash:free",
-"google/gemma-3-27b-it:free",
-"google/gemma-2-9b-it:free",
-"google/gemma-2-2b-it:free",
-
-"meta-llama/llama-3.3-70b-instruct:free",
-"meta-llama/llama-3.1-70b-instruct:free",
-"meta-llama/llama-3.1-8b-instruct:free",
-"meta-llama/llama-3-8b-instruct:free",
-"meta-llama/llama-2-13b-chat:free",
-"meta-llama/llama-2-7b-chat:free",
-
 "openai/gpt-oss-120b:free",
 "openai/gpt-oss-20b:free",
-
+"meta-llama/llama-3.3-70b-instruct:free",
+"nousresearch/hermes-3-llama-3.1-405b:free",
+"meta-llama/llama-3.1-405b-instruct:free",
+"z-ai/glm-4.5-air:free",
 "qwen/qwen3-coder:free",
-"qwen/qwen2.5-72b-instruct:free",
-"qwen/qwen2.5-32b-instruct:free",
-"qwen/qwen2.5-14b-instruct:free",
-"qwen/qwen2.5-7b-instruct:free",
-"qwen/qwen-7b-chat:free",
-
+"qwen/qwen3-4b:free",
+"google/gemma-3-27b-it:free",
+"google/gemma-3-12b-it:free",
+"google/gemma-3-4b-it:free",
+"google/gemma-3n-e4b-it:free",
+"google/gemma-3n-e2b-it:free",
+"moonshotai/kimi-k2:free",
+"deepseek/deepseek-r1-0528:free",
+"tngtech/deepseek-r1t2-chimera:free",
+"tngtech/deepseek-r1t-chimera:free",
+"nex-agi/deepseek-v3.1-nex-n1:free",
+"mistralai/mistral-small-3.1-24b-instruct:free",
+"mistralai/devstral-2512:free",
+"qwen/qwen-2.5-vl-7b-instruct:free",
+"alibaba/tongyi-deepresearch-30b-a3b:free",
+"allenai/olmo-3.1-32b-think:free",
+"allenai/olmo-3-32b-think:free",
+"cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+"nvidia/nemotron-3-nano-30b-a3b:free",
+"nvidia/nemotron-nano-12b-v2-vl:free",
+"nvidia/nemotron-nano-9b-v2:free",
+"xiaomi/mimo-v2-flash:free",
+"kwaipilot/kat-coder-pro:free",
+"tngtech/tng-r1t-chimera:free",
+"arcee-ai/trinity-mini:free",
+"meta-llama/llama-3.2-3b-instruct:free",
 "mistralai/mistral-7b-instruct:free",
-"mistralai/mixtral-8x7b-instruct:free",
-"mistralai/mixtral-8x22b-instruct:free",
-
-"nousresearch/nous-hermes-2-mixtral:free",
-"nousresearch/nous-hermes-2-yi-34b:free",
-
-"openchat/openchat-3.5:free",
-"gryphe/mythomax-l2-13b:free",
-
-"tiiuae/falcon-7b-instruct:free",
-"tiiuae/falcon-11b-instruct:free",
-
-"huggingfaceh4/zephyr-7b-beta:free",
 "openrouter/auto"
             ];
 
@@ -857,6 +859,9 @@ Background information (mention ONLY if relevant or asked):
                     if (!response.ok) {
                         if (i === candidates.length - 1) {
                             const errorText = await response.text();
+                            if (response.status === 404 || errorText.includes("User not found")) {
+                                throw new Error("External AI Service Error: The API Key is invalid or the account does not exist. Please update the API Key in products.html.");
+                            }
                             throw new Error(`API Error (${response.status}): ${errorText}`);
                         }
                         continue;

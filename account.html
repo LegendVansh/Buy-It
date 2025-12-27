@@ -103,21 +103,25 @@
             50% { transform: translateY(-50%) scale(1.2); }
         }
         @media (max-width: 768px) {
+            header {
+                padding-top: 10px;
+            }
             nav {
-                flex-direction: column;
+                flex-direction: row;
             }
             .logo {
-                margin-bottom: 0.5rem;
-                height: 50px;
+                margin-bottom: 0;
+                height: 40px;
+                margin-top: 0;
             }
             .nav-links {
                 flex-direction: row;
-                justify-content: center;
+                justify-content: flex-end;
                 flex-wrap: nowrap;
-                width: 100%;
+                width: auto;
             }
             .nav-links li {
-                margin: 0 2px;
+                margin-left: 5px;
             }
             .nav-links a {
                 font-size: 0.8rem;
@@ -177,6 +181,27 @@
         body.dark-theme .btn-secondary { background: #555; color: white; }
         body.dark-theme .btn-outline { border-color: navy; color: white; }
         body.dark-theme .btn-danger { background: darkred; }
+        .password-wrapper { position: relative; }
+        .toggle-password {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; font-size: 1.2rem; user-select: none;
+        }
+        .caps-warning { color: red; font-size: 0.8rem; display: none; margin-top: 5px; text-align: left; }
+        .strength-meter {
+            height: 5px;
+            width: 100%;
+            background-color: #eee;
+            margin-top: 5px;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+        .strength-meter div {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        .strength-text { font-size: 0.8rem; margin-top: 2px; text-align: left; display: none; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -200,9 +225,6 @@
 
     <section class="account-container">
         <!-- Server Status Indicator -->
-        <div id="server-status" style="position: absolute; top: 0; left: 0; width: 100%; background: #ff4444; color: white; text-align: center; padding: 10px; display: none; z-index: 10;">
-            <strong>Server Offline:</strong> Please run <code>node server.js</code> in your terminal.
-        </div>
 
         <!-- Dashboard (Logged In) -->
         <div class="form-box" id="dashboard-box" style="display: none;">
@@ -220,7 +242,13 @@
             <div class="input-group"><input type="text" id="lname" placeholder="Last Name *"></div>
             <div class="input-group"><input type="tel" id="phone" placeholder="Phone No."></div>
             <div class="input-group"><input type="email" id="email" placeholder="Email"></div>
-            <div class="input-group"><input type="password" id="password" placeholder="Password *"></div>
+            <div class="input-group password-wrapper">
+                <input type="password" id="password" placeholder="Password *">
+                <span class="toggle-password" onclick="togglePassword('password')">👁️</span>
+                <div id="caps-warning-signup" class="caps-warning">⚠️ Caps Lock is ON</div>
+                <div id="password-strength-bar" class="strength-meter"><div></div></div>
+                <div id="password-strength-text" class="strength-text"></div>
+            </div>
             <p style="font-size: 0.8rem; color: gray; margin-bottom: 15px;">* First Name, Last Name, Password and (Phone or Email) are mandatory</p>
             
             <div class="btn-group">
@@ -234,7 +262,11 @@
         <div class="form-box" id="login-box" style="display: none;">
             <h2>Login</h2>
             <div class="input-group"><input type="text" id="login-identifier" placeholder="Phone No. or Email *"></div>
-            <div class="input-group"><input type="password" id="login-password" placeholder="Password *"></div>
+            <div class="input-group password-wrapper">
+                <input type="password" id="login-password" placeholder="Password *">
+                <span class="toggle-password" onclick="togglePassword('login-password')">👁️</span>
+                <div id="caps-warning-login" class="caps-warning">⚠️ Caps Lock is ON</div>
+            </div>
             
             <div class="btn-group">
                 <button class="btn btn-primary" onclick="handleLogin()">Login</button>
@@ -387,12 +419,12 @@
             }
         }
 
-        function handleLogout() {
+        function handleLogout(silent = false) {
             localStorage.removeItem('currentUser');
             document.querySelector('a[href="account.html"]').textContent = "ACCOUNT";
             document.getElementById('dashboard-box').style.display = 'none';
             document.getElementById('signup-box').style.display = 'block';
-            alert("Logged out successfully!");
+            if (!silent) alert("Logged out successfully!");
         }
 
         async function handleDeleteAccount() {
@@ -418,14 +450,92 @@
         // Check if server is running
         async function checkServerStatus() {
             try {
-                await fetch(SERVER_ROOT);
+                const response = await fetch(`${API_URL}/health`);
                 document.getElementById('server-status').style.display = 'none';
+
+                // Validate Session
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (user) {
+                    const identifier = user.email || user.phone;
+                    const res = await fetch(`${API_URL}/validate-session`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identifier })
+                    });
+                    const data = await res.json();
+                    if (!data.valid) {
+                        alert("Your account has been deleted or session expired.");
+                        handleLogout(true);
+                    }
+                }
             } catch (e) {
                 document.getElementById('server-status').style.display = 'block';
             }
         }
         setInterval(checkServerStatus, 2000); // Check every 2 seconds
         checkServerStatus();
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field.type === "password") {
+                field.type = "text";
+            } else {
+                field.type = "password";
+            }
+        }
+
+        function setupCapsWarning(inputId, warningId) {
+            const input = document.getElementById(inputId);
+            const warning = document.getElementById(warningId);
+            input.addEventListener('keyup', function(event) {
+                if (event.getModifierState("CapsLock")) {
+                    warning.style.display = "block";
+                } else {
+                    warning.style.display = "none";
+                }
+            });
+        }
+        setupCapsWarning('password', 'caps-warning-signup');
+        setupCapsWarning('login-password', 'caps-warning-login');
+
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const barContainer = document.getElementById('password-strength-bar');
+            const bar = barContainer.querySelector('div');
+            const text = document.getElementById('password-strength-text');
+
+            if (password.length === 0) {
+                barContainer.style.display = 'none';
+                text.style.display = 'none';
+                return;
+            }
+
+            barContainer.style.display = 'block';
+            text.style.display = 'block';
+
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/\d/)) strength++;
+            if (password.match(/[^a-zA-Z\d]/)) strength++;
+
+            let color = '#ff4444';
+            let width = '25%';
+            let message = 'Weak';
+
+            if (strength >= 4) {
+                color = '#00C851'; width = '100%'; message = 'Strong';
+            } else if (strength === 3) {
+                color = '#007E33'; width = '75%'; message = 'Good';
+            } else if (strength === 2) {
+                color = '#ffbb33'; width = '50%'; message = 'Fair';
+            }
+
+            bar.style.width = width;
+            bar.style.backgroundColor = color;
+            text.textContent = "Strength: " + message;
+            text.style.color = color;
+        });
     </script>
 </body>
 </html>

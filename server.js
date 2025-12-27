@@ -26,7 +26,7 @@ const checkAdminPassword = (req, res, next) => {
 };
 
 // Apply password protection to admin endpoints
-app.use(['/api/users', '/api/sync-chats', '/api/all-chats', '/api/delete-user', '/api/delete-chats'], checkAdminPassword);
+app.use(['/api/users', '/api/all-chats', '/api/delete-user', '/api/delete-chats'], checkAdminPassword);
 
 // Serve static files (including admin.html)
 app.use(express.static(__dirname));
@@ -91,7 +91,7 @@ app.post('/api/sync-chats', (req, res) => {
 });
 
 // Allow viewing chats on this URL too if accessed via browser (GET)
-app.get('/api/sync-chats', (req, res) => {
+app.get('/api/sync-chats', checkAdminPassword, (req, res) => {
     res.json(allChats);
 });
 
